@@ -1,4 +1,6 @@
+import asyncio
 import asyncio as aio
+import threading
 from typing import Optional
 
 from .cache import LRUCache, TTLCache
@@ -12,19 +14,21 @@ def lru_cache(maxsize: Optional[int] = 128):
     def decorator(func):
         def wrapper(*args, **kwargs):
             key = make_key(args, kwargs)
-            if key in cache:
-                return cache[key]
-            else:
-                cache[key] = func(*args, **kwargs)
-                return cache[key]
+            with threading.Lock():
+                if key in cache:
+                    return cache[key]
+                else:
+                    cache[key] = func(*args, **kwargs)
+                    return cache[key]
 
         async def async_wrapper(*args, **kwargs):
             key = make_key(args, kwargs)
-            if key in cache:
-                return cache[key]
-            else:
-                cache[key] = await func(*args, **kwargs)
-                return cache[key]
+            async with asyncio.Lock():
+                if key in cache:
+                    return cache[key]
+                else:
+                    cache[key] = await func(*args, **kwargs)
+                    return cache[key]
 
         if aio.iscoroutinefunction(func):
             return async_wrapper
@@ -39,19 +43,21 @@ def ttl_cache(ttl: Optional[TTL] = 60, maxsize: Optional[int] = 1024):
     def decorator(func):
         def wrapper(*args, **kwargs):
             key = make_key(args, kwargs)
-            if key in cache:
-                return cache[key]
-            else:
-                cache[key] = func(*args, **kwargs)
-                return cache[key]
+            with threading.Lock():
+                if key in cache:
+                    return cache[key]
+                else:
+                    cache[key] = func(*args, **kwargs)
+                    return cache[key]
 
         async def async_wrapper(*args, **kwargs):
             key = make_key(args, kwargs)
-            if key in cache:
-                return cache[key]
-            else:
-                cache[key] = await func(*args, **kwargs)
-                return cache[key]
+            async with asyncio.Lock():
+                if key in cache:
+                    return cache[key]
+                else:
+                    cache[key] = await func(*args, **kwargs)
+                    return cache[key]
 
         if aio.iscoroutinefunction(func):
             return async_wrapper

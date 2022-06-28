@@ -5,7 +5,9 @@
 可以装饰同步函数或异步函数，同时也支持装饰类方法
 
 ```python
+import time
 import asyncio
+
 
 from ttl_cache import ttl_cache
 
