@@ -6,7 +6,7 @@ def make_hashable(o: Any) -> Hashable:
     Make any object to hashable type
     """
     match o:
-        case tuple():
+        case tuple() | list():
             return tuple(map(make_hashable, o))
         case dict():
             return tuple(sorted(((k, make_hashable(v)) for k, v in o.items())))
